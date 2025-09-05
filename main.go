@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 func main() {
@@ -15,5 +16,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println(string(status))
+	words := strings.Fields(string(status))
+
+	for _, word := range words {
+		fmt.Println(word)
+	}
+
+	// fmt.Println(string(status))
 }
