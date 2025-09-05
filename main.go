@@ -16,11 +16,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	words := strings.Fields(string(status))
+	lines := strings.Split(string(status), "\n")
 
-	for _, word := range words {
-		fmt.Println(word)
+	for _, line := range lines {
+		fmt.Println(line)
 	}
+
 
 	// fmt.Println(string(status))
 }
