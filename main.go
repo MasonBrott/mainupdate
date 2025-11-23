@@ -48,10 +48,10 @@ func main() {
 		fmt.Println(lines[1])
 	}
 
-	boldCyan.Println("Fetch main branch from origin:")
-	fetch, err := exec.Command("git", "fetch", "origin", "main").CombinedOutput()
+	boldCyan.Println("Fetch all branches and tags from origin:")
+	fetch, err := exec.Command("git", "fetch", "origin", "--tags").CombinedOutput()
 	if err != nil {
-		boldRed.Printf("error fetching main branch from origin: %v", err)
+		boldRed.Printf("error fetching all branches and tags from origin: %v", err)
 		os.Exit(1)
 	}
 
