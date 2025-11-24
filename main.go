@@ -24,7 +24,7 @@ func main() {
 
 	boldRed := color.New(color.FgRed).Add(color.Bold).Add(color.Underline)
 
-    status, err := exec.Command("git", "status").Output()
+	status, err := exec.Command("git", "status").Output()
 	if err != nil {
 		boldRed.Printf("error getting git status: %v", err)
 		os.Exit(1)
@@ -44,7 +44,7 @@ func main() {
 
 	lines := strings.Split(strings.TrimSpace(string(checkout)), "\n")
 
-    if len(lines) > 1 && lines[1] != "" {
+	if len(lines) > 1 && lines[1] != "" {
 		fmt.Println(lines[1])
 	}
 
