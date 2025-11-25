@@ -1,4 +1,4 @@
-# update-git-main
+# mainupdate
 
 A simple Go tool to update your local main branch from origin.
 
