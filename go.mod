@@ -1,4 +1,4 @@
-module mainsync
+module mainupdate
 
 go 1.25.4
 
