@@ -9,6 +9,48 @@ import (
 	"github.com/fatih/color"
 )
 
+func branchExists(name string) bool {
+	if exec.Command("git", "rev-parse", "--verify", "refs/heads/"+name).Run() == nil {
+		return true
+	}
+	return exec.Command("git", "rev-parse", "--verify", "refs/remotes/origin/"+name).Run() == nil
+}
+
+func defaultBranch() (string, error) {
+	out, err := exec.Command("git", "symbolic-ref", "refs/remotes/origin/HEAD").Output()
+	if err == nil {
+		ref := strings.TrimSpace(string(out))
+		return strings.TrimPrefix(ref, "refs/remotes/origin/"), nil
+	}
+
+	out, err = exec.Command("git", "remote", "show", "origin").Output()
+	if err == nil {
+		for _, line := range strings.Split(string(out), "\n") {
+			line = strings.TrimSpace(line)
+			if strings.HasPrefix(line, "HEAD branch:") {
+				return strings.TrimSpace(strings.TrimPrefix(line, "HEAD branch:")), nil
+			}
+		}
+	}
+
+	for _, name := range []string{"main", "master"} {
+		if branchExists(name) {
+			return name, nil
+		}
+	}
+
+	return "", fmt.Errorf("could not determine default branch")
+}
+
+func checkoutBranch(name string) ([]byte, error) {
+	out, err := exec.Command("git", "checkout", name).CombinedOutput()
+	if err == nil {
+		return out, nil
+	}
+
+	return exec.Command("git", "checkout", "-B", name, "origin/"+name).CombinedOutput()
+}
+
 func main() {
 	orange := color.RGB(209, 94, 20)
 	boldOrange := orange.Add(color.Bold).Add(color.Underline)
@@ -35,10 +77,25 @@ func main() {
 		os.Exit(1)
 	}
 
-	boldOrange.Println("Checking out the main branch:")
-	checkout, err := exec.Command("git", "checkout", "main").CombinedOutput()
+	boldCyan.Println("Fetch all branches and tags from origin:")
+	fetch, err := exec.Command("git", "fetch", "origin", "--tags").CombinedOutput()
 	if err != nil {
-		boldRed.Printf("error checking out main branch: %v", err)
+		boldRed.Printf("error fetching all branches and tags from origin: %v", err)
+		os.Exit(1)
+	}
+
+	fmt.Println(strings.TrimSpace(string(fetch)))
+
+	branch, err := defaultBranch()
+	if err != nil {
+		boldRed.Printf("error determining default branch: %v\n", err)
+		os.Exit(1)
+	}
+
+	boldOrange.Printf("Checking out the %s branch:\n", branch)
+	checkout, err := checkoutBranch(branch)
+	if err != nil {
+		boldRed.Printf("error checking out %s branch: %v", branch, err)
 		os.Exit(1)
 	}
 
@@ -48,23 +105,14 @@ func main() {
 		fmt.Println(lines[1])
 	}
 
-	boldCyan.Println("Fetch all branches and tags from origin:")
-	fetch, err := exec.Command("git", "fetch", "origin", "--tags").CombinedOutput()
+	boldMagenta.Printf("Pull %s branch from origin:\n", branch)
+	pull, err := exec.Command("git", "pull", "origin", branch).CombinedOutput()
 	if err != nil {
-		boldRed.Printf("error fetching all branches and tags from origin: %v", err)
+		boldRed.Printf("error pulling %s branch from origin: %v", branch, err)
 		os.Exit(1)
 	}
 
-	fmt.Println(string(strings.TrimSpace(string(fetch))))
-
-	boldMagenta.Println("Pull main branch from origin:")
-	pull, err := exec.Command("git", "pull", "origin", "main").CombinedOutput()
-	if err != nil {
-		boldRed.Printf("error pulling main branch from origin: %v", err)
-		os.Exit(1)
-	}
-
-	fmt.Println(string(strings.TrimSpace(string(pull))))
+	fmt.Println(strings.TrimSpace(string(pull)))
 
 	boldGreen.Println("All set!")
 	fmt.Println("")
