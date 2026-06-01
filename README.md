@@ -5,7 +5,7 @@ A simple Go tool to update your local default branch from origin.
 ## What it does
 
 1. Checks that your working tree is clean
-2. Fetches all branches and tags from origin
+2. Fetches all branches and tags from origin and prunes any local branches that no longer exist on the remote
 3. Detects the repository's default base branch (e.g. `main`, `master`, or another)
 4. Checks out the default branch
 5. Pulls the latest changes from origin

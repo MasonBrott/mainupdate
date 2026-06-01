@@ -78,7 +78,7 @@ func main() {
 	}
 
 	boldCyan.Println("Fetch all branches and tags from origin:")
-	fetch, err := exec.Command("git", "fetch", "origin", "--tags").CombinedOutput()
+	fetch, err := exec.Command("git", "fetch", "origin", "--tags", "--prune").CombinedOutput()
 	if err != nil {
 		boldRed.Printf("error fetching all branches and tags from origin: %v", err)
 		os.Exit(1)
